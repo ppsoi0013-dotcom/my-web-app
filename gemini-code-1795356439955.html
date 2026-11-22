@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>나만의 '오늘 뭐 먹지?' 메뉴 추천</title>
+  <style>
+    body {
+      font-family: "Pretendard", "Malgun Gothic", sans-serif;
+      background-color: #f6f7f9;
+      color: #222;
+      margin: 0;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 1.6rem;
+    }
+    .section {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .section h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    button.secondary {
+      background-color: #4b5563;
+    }
+    button.secondary:hover {
+      background-color: #374151;
+    }
+    select, input {
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .result-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 10px;
+      background-color: #eff6ff;
+      min-height: 24px;
+    }
+    .msg-error {
+      color: #dc2626;
+      font-weight: 600;
+    }
+    .msg-success {
+      color: #059669;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍽️ 나만의 '오늘 뭐 먹지?' 메뉴 추천</h1>
+    <p>카테고리를 골라 메뉴를 추천받고, 새 메뉴를 추가하며 추천 통계를 확인해 보세요.</p>
+
+    <!-- 1. 카테고리별 메뉴 추천 -->
+    <div class="section">
+      <h2>1. 카테고리별 메뉴 추천 받기</h2>
+      <div class="btn-group">
+        <button type="button" onclick="recommendMenu('한식')">한식</button>
+        <button type="button" onclick="recommendMenu('중식')">중식</button>
+        <button type="button" onclick="recommendMenu('일식')">일식</button>
+        <button type="button" onclick="recommendMenu('양식')">양식</button>
+      </div>
+      <div id="recommendResult" class="result-box">카테고리 버튼을 눌러 메뉴를 추천받아 보세요!</div>
+    </div>
+
+    <!-- 2. 나만의 새 메뉴 추가 -->
+    <div class="section">
+      <h2>2. 나만의 새 메뉴 추가하기</h2>
+      <div class="btn-group">
+        <select id="categorySelect">
+          <option value="한식">한식</option>
+          <option value="중식">중식</option>
+          <option value="일식">일식</option>
+          <option value="양식">양식</option>
+        </select>
+        <input id="newMenuInput" type="text" placeholder="추가할 메뉴 이름 입력" />
+        <button type="button" onclick="addMenu()">메뉴 추가</button>
+      </div>
+      <div id="addResult" class="result-box">원하는 카테고리와 메뉴 이름을 입력해 추가하세요.</div>
+    </div>
+
+    <!-- 3. 식단 추천 통계 보기 -->
+    <div class="section">
+      <h2>3. 식단 추천 통계 보기</h2>
+      <button type="button" class="secondary" onclick="showStatistics()">통계 보기</button>
+      <div id="statsResult" class="result-box">아직 통계를 조회하지 않았습니다.</div>
+    </div>
+  </div>
+
+  <script>
+    const menuData = {
+      "한식": ["김치찌개", "불고기", "비빔밥", "된장찌개", "제육볶음"],
+      "중식": ["짜장면", "짬뽕", "탕수육", "볶음밥", "마라탕"],
+      "일식": ["초밥", "돈카츠", "규동", "라멘", "모밀"],
+      "양식": ["파스타", "피자", "햄버거", "스테이크", "리조또"]
+    };
+
+    const historyLog = [];
+
+    function recommendMenu(category) {
+      const box = document.getElementById("recommendResult");
+      if (!menuData[category] || menuData[category].length === 0) {
+        box.innerHTML = `<span class="msg-error">⚠️ 잘못된 카테고리이거나 메뉴가 없습니다.</span>`;
+        return;
+      }
+      const randomIndex = Math.floor(Math.random() * menuData[category].length);
+      const selected = menuData[category][randomIndex];
+      historyLog.push(selected);
+      box.innerHTML = `✨ 오늘의 추천 메뉴는 바로 <strong>[ ${selected} ]</strong>야! (카테고리: ${category})`;
+    }
+
+    function addMenu() {
+      const cat = document.getElementById("categorySelect").value;
+      const inputEl = document.getElementById("newMenuInput");
+      const newMenu = inputEl.value.trim();
+      const box = document.getElementById("addResult");
+
+      if (!menuData[cat]) {
+        box.innerHTML = `<span class="msg-error">⚠️ 존재하지 않는 카테고리야.</span>`;
+        return;
+      }
+      if (!newMenu) {
+        box.innerHTML = `<span class="msg-error">⚠️ 추가할 메뉴 이름을 입력해 주세요.</span>`;
+        return;
+      }
+
+      menuData[cat].push(newMenu);
+      inputEl.value = "";
+      box.innerHTML = `<span class="msg-success">✅ 성공적으로 '${cat}' 카테고리에 '${newMenu}'가 추가되었어!</span>`;
+    }
+
+    function showStatistics() {
+      const box = document.getElementById("statsResult");
+      if (historyLog.length === 0) {
+        box.innerHTML = "아직 추천받은 메뉴 기록이 없어! 먼저 메뉴를 추천받아봐.";
+        return;
+      }
+
+      const menuCounts = {};
+      for (const item of historyLog) {
+        menuCounts[item] = (menuCounts[item] || 0) + 1;
+      }
+
+      const listItemsHtml = Object.entries(menuCounts)
+        .map(([menu, count]) => `<li>${menu}: ${count}회</li>`)
+        .join("");
+
+      box.innerHTML = `
+        <div><strong>📊 [월간/누적 식단 추천 통계]</strong></div>
+        <div>총 추천받은 메뉴 개수: <strong>${historyLog.length}개</strong></div>
+        <div>기록된 목록: [${historyLog.join(", ")}]</div>
+        <div style="margin-top: 8px;"><strong>[메뉴별 선택 횟수]</strong></div>
+        <ul style="margin: 4px 0 0 0; padding-left: 20px;">${listItemsHtml}</ul>
+      `;
+    }
+  </script>
+</body>
+</html>
